@@ -1,17 +1,19 @@
 let num1 = '';
 let num2 = '';
 let operator = '';
-let equation = '';
 let result = '';
 let tempStr1 = '';
 let tempStr2 = '';
-let resultRound =0;
+let resultRound = 0;
+let curr = 1;
+let currentOperator='';
 
 const display = document.querySelector(".display");
 const num = document.querySelectorAll(".number");
 const op = document.querySelectorAll(".operator");
 const equals = document.querySelector(".equals");
 const clearBtn = document.querySelector(".clear");
+const signChange = document.querySelector(".signChange");
 
 function add(num1, num2) {
     return num1 + num2;
@@ -29,28 +31,29 @@ function divide(num1, num2) {
     return num1 / num2;
 }
 
-function operate(operator, num1, num2) {
-    num1 = parseFloat(num1);
-    num2 = parseFloat(num2);
-    console.log("TypE: " +typeof(num2));
+function operate(operator, numA, numB) {
+    numA = parseFloat(numA);
+    numB = parseFloat(numB);
+    console.log(numA);
+    console.log(numB);
     if (operator == '') {
         return '0';
     }
     if (operator == "+") {
-        return add(num1, num2)
+        return add(numA, numB)
     }
     if (operator == "-") {
-        return subtract(num1, num2)
+        return subtract(numA, numB)
     }
     if (operator == "*") {
-        return multiply(num1, num2)
+        return multiply(numA, numB)
     }
     if (operator == "/") {
-        if (num2 === 0) {
+        if (numB === 0) {
             console.log("helloooo");
             return "Error"
         }
-        return divide(num1, num2)
+        return divide(numA, numB)
     }
 
 }
@@ -65,7 +68,7 @@ function calc() {
                 num1 = ''.concat('', e.target.textContent);
                 operator = '';
                 updateDisplay(num1);
-                console.log(num1);
+                curr = 1;
             }
             else {
                 return;
@@ -74,6 +77,7 @@ function calc() {
             if (tempStr1 != 2) {
                 num1 = num1.concat('', e.target.textContent);
                 updateDisplay(num1);
+                curr = 1;
             } else {
                 return;
             }
@@ -82,6 +86,7 @@ function calc() {
             if (tempStr2 != 2) {
                 num2 = num2.concat('', e.target.textContent);
                 updateDisplay(num2);
+                curr = 2;
             }
             else {
                 return;
@@ -95,51 +100,84 @@ function calc() {
 
 
     })));
-    op.forEach(btn => (btn.addEventListener('click', (e) => {
-        if (num2 != '') {
-            //console.log("hello");
-            result = operate(operator, num1, num2);
-            operator = e.target.textContent;
-            num2 = '';
-            num1 = result;
-            updateDisplay(result);
-        } else if (num1 != '') {
-            operator = e.target.textContent;
-        }
+    //op.forEach(btn =>(btn.addEventListener('click',console.log("hhhh")
 
-        console.log("current op: " + operator);
-        console.log("num1: " + num1);
-        console.log("num2: " + num2);
-        console.log("result: " + result);
+    op.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            if (num2 != '') {
+                result = operate(operator, num1, num2);
+                operator = e.target.textContent;
+                //currentOperator = operator;
 
-    })));
+                num2 = '';
+                num1 = result.toString();
+                updateDisplay(result);
+            } else if (num1 != '') {
+                operator = e.target.textContent;
+                //currentOperator = operator;
+
+            }
+        });
+
+        btn.addEventListener('click', ()=>{
+            //console.log(currentOperator, operator);
+            op.forEach(but =>{
+                but.classList.remove("current");
+            });
+            btn.classList.add("current");
+        });
+    });
+
+
+    signChange.addEventListener('click', sign);
 
     equals.addEventListener("click", () => {
-        //console.log(operator, num1, num2);
+        console.log("-----equal function ------")
 
-        if(num2 !=''){
+        if (num2 != '') {
             result = operate(operator, num1, num2);
         }
-        else{
-            result = 0;
+        else {
+            return;
         }
-        if(typeof(result)=="number"){
-            console.log(result.toFixed(2));
+        if (typeof (result) == "number") {
             resultRound = result.toFixed(2);
         }
-        
-        updateDisplay(resultRound);
-        console.log(result);
+        updateDisplay(resultRound.toString());
 
-        num1 = result.toString();
+        num1 = resultRound.toString();
         num2 = '';
         operator = '=';
-    
-        console.log("current op: " + operator);
-        console.log("num1: " + num1);
-        console.log("num2: " + num2);
-        console.log("result: " + result);
+        removeClass(op);
+
+        // console.log("current op: " + operator);
+        // console.log("num1: " + num1);
+        // console.log("num2: " + num2);
+        // console.log("result: " + result);
     });
+
+}
+
+function sign() {
+    if (curr == 1) {
+        if (num1.includes("-")) {
+            num1 = num1.slice(1);
+        }
+        else {
+            num1 = "-" + num1;
+        }
+        updateDisplay(num1);
+        return;
+    }
+
+    if (num2.includes("-")) {
+        num2 = num2.slice(1);
+    }
+    else {
+        num2 = "-" + num2;
+    }
+    updateDisplay(num2);
+    return;
 
 }
 
@@ -156,7 +194,6 @@ function checkDecimal(str) {
 function checkError(str) {
     if (str == 'Error') {
         console.log("hhh")
-
         clear();
     }
 }
@@ -164,8 +201,10 @@ function updateDisplay(e) {
     display.textContent = e;
 }
 
-function returnOperator(e) {
-    return e.target.textContent;
+function removeClass(str) {
+    str.forEach(btn=>{
+        btn.classList.remove("current");
+    })
 }
 
 function clear() {
@@ -174,7 +213,11 @@ function clear() {
     num2 = '';
     operator = '';
     result = '0';
+    removeClass(op);
 }
 
 clearBtn.addEventListener('click', clear);
 calc();
+
+
+
